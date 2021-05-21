@@ -1,7 +1,11 @@
 # binance-funding-rates
 
+### requirements
+node.js
+
 ### install
 ```sh
+npm i -g typescript
 npm i
 ```
 
