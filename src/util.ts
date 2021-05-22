@@ -38,39 +38,26 @@ export const assembleList = (
     .slice(0, PORTFOLIO_SIZE);
 };
 
-// export const getBestFundingRates = (
-//   x: [MappedFundingRate[], MappedFundingRate[]],
-//   currentList
-// ): MappedFundingRate[] => {
-//   const oldList = x[0].slice(0, 5);
-//   const newList = x[1].filter(
-//     (n) => !oldList.some((o) => o.symbol === n.symbol)
-//   );
-//   const curatedList = assembleList(oldList, newList);
-//   if (
-//     curatedList.some(
-//       (item) => !currentList.find((old) => old.symbol === item.symbol)
-//     )
-//   ) {
-//     return curatedList;
-//   }
-//   return oldList;
-// };
-
 export const getBestFundingRates = (
   currentList: MappedFundingRate[],
   newList: MappedFundingRate[]
 ) => {
+  // find the current list in the new list for comparison
+  const updatedCurrentList = newList.filter((n) =>
+    currentList.some((c) => c.symbol === n.symbol)
+  );
   if (
-    newList.some((n) =>
-      currentList.some(
-        (o) =>
-          o.symbol !== n.symbol &&
-          n.annualizedRate * THRESHOLD > o.annualizedRate
+    newList
+      .slice(0, PORTFOLIO_SIZE)
+      .some((n) =>
+        updatedCurrentList.some(
+          (o) =>
+            o.symbol !== n.symbol &&
+            n.annualizedRate * THRESHOLD > o.annualizedRate
+        )
       )
-    )
   ) {
-    return assembleList(currentList, newList);
+    return assembleList(updatedCurrentList, newList);
   }
   return currentList;
 };
