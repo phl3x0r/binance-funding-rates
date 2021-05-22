@@ -23,7 +23,7 @@ export const getPremium = (spot, perp) =>
 export const assembleList = (
   aList: MappedFundingRate[],
   bList: MappedFundingRate[]
-) => {
+): MappedFundingRate[] => {
   const b = bList.shift();
   if (
     b &&
@@ -38,12 +38,39 @@ export const assembleList = (
     .slice(0, PORTFOLIO_SIZE);
 };
 
+// export const getBestFundingRates = (
+//   x: [MappedFundingRate[], MappedFundingRate[]],
+//   currentList
+// ): MappedFundingRate[] => {
+//   const oldList = x[0].slice(0, 5);
+//   const newList = x[1].filter(
+//     (n) => !oldList.some((o) => o.symbol === n.symbol)
+//   );
+//   const curatedList = assembleList(oldList, newList);
+//   if (
+//     curatedList.some(
+//       (item) => !currentList.find((old) => old.symbol === item.symbol)
+//     )
+//   ) {
+//     return curatedList;
+//   }
+//   return oldList;
+// };
+
 export const getBestFundingRates = (
-  x: [MappedFundingRate[], MappedFundingRate[]]
-): MappedFundingRate[] => {
-  const oldList = x[0].slice(0, 5);
-  const newList = x[1].filter(
-    (n) => !oldList.some((o) => o.symbol === n.symbol)
-  );
-  return assembleList(oldList, newList);
+  currentList: MappedFundingRate[],
+  newList: MappedFundingRate[]
+) => {
+  if (
+    newList.some((n) =>
+      currentList.some(
+        (o) =>
+          o.symbol !== n.symbol &&
+          n.annualizedRate * THRESHOLD > o.annualizedRate
+      )
+    )
+  ) {
+    return assembleList(currentList, newList);
+  }
+  return currentList;
 };

@@ -11,6 +11,7 @@
   "dependencies": {
     "abort-controller": "^3.0.0",
     "chalk": "^4.1.1",
+    "discord-webhook-node": "^1.1.8",
     "node-fetch": "^1.7.3",
     "rxjs": "^6.6.7"
   },

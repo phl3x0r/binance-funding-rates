@@ -16,9 +16,10 @@ import {
   Ticker,
 } from "./models";
 import { forkJoin, timer } from "rxjs";
-import { UPDATE_FREQUENCY, FUTURES, SPOT } from "./config";
+import { UPDATE_FREQUENCY, FUTURES, SPOT, PORTFOLIO_SIZE } from "./config";
+import { sendDiscord } from "./discord";
 
-const initalList: Array<MappedFundingRate> = [];
+let currentList: Array<MappedFundingRate> = [];
 
 timer(0, UPDATE_FREQUENCY)
   .pipe(
@@ -77,18 +78,26 @@ timer(0, UPDATE_FREQUENCY)
                 )
               ).pipe(
                 map((fundingRates) =>
-                  fundingRates.sort(
-                    (a, b) => b.annualizedRate - a.annualizedRate
-                  )
+                  fundingRates
+                    .sort((a, b) => b.annualizedRate - a.annualizedRate)
+                    .slice(0, PORTFOLIO_SIZE)
                 )
               )
             )
           )
         )
       )
-    ),
-    startWith(initalList),
-    pairwise(),
-    map((x) => getBestFundingRates(x))
+    )
   )
-  .subscribe(console.log);
+  .subscribe((newList: MappedFundingRate[]) => {
+    if (!currentList.length) {
+      currentList = newList;
+    } else {
+      const newCurrentList = getBestFundingRates(currentList, newList);
+      if (newCurrentList !== currentList) {
+        currentList = newCurrentList;
+        console.log(currentList);
+        sendDiscord(JSON.stringify(currentList, null, "\t"));
+      }
+    }
+  });
