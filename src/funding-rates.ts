@@ -90,14 +90,12 @@ timer(0, UPDATE_FREQUENCY)
     )
   )
   .subscribe((newList: MappedFundingRate[]) => {
-    if (!currentList.length) {
-      currentList = newList;
-    } else {
-      const newCurrentList = getBestFundingRates(currentList, newList);
-      if (newCurrentList !== currentList) {
-        currentList = newCurrentList;
-        console.log(currentList);
-        sendDiscord(JSON.stringify(currentList, null, "\t"));
-      }
+    const newCurrentList = !currentList.length
+      ? newList
+      : getBestFundingRates(currentList, newList);
+    if (newCurrentList !== currentList) {
+      currentList = newCurrentList;
+      console.log(currentList);
+      sendDiscord(JSON.stringify(currentList, null, "\t"));
     }
   });
